@@ -1,7 +1,5 @@
 import requests
 import os
-import json
-from datetime import date
 from dotenv import load_dotenv
 from city import cities
 
@@ -11,9 +9,7 @@ URL = "https://api.openweathermap.org/data/2.5/weather"
 
 
 def extract_weather():
-    today = date.today().isoformat()
-    raw_folder = f"raw/{today}"
-    os.makedirs(raw_folder, exist_ok=True)
+    all_data = []
 
     for city in cities:
         params = {
@@ -23,19 +19,11 @@ def extract_weather():
         }
 
         response = requests.get(URL, params=params)
+        data = response.json()
+        all_data.append(data)
 
-        if response.status_code == 200:
-            data = response.json()
+    return all_data
 
-            file_name = city.split(",")[0].lower().replace(" ", "_")
-            file_path = f"{raw_folder}/{file_name}.json"
-
-            with open(file_path, "w") as f:
-                json.dump(data, f)
-
-            print(f"Saved: {file_path}")
-        else:
-            print(f"Error for {city}: {response.status_code} - {response.text}")
 
 
 if __name__ == "__main__":
